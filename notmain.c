@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
@@ -80,17 +79,26 @@ int isAction(struct actionNode *ptr, int a[11])
 	return NULL;
 }
 
+/*
+  @inputs LL node, 11 data points, name of gesture
+  @outputs returns a pointer witht the new action
+  adds a new action 
+*/
+
 struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
 {
 	struct actionNode * rtn=ptr;
+	struct actionNode * ptr2;
 	int i;
+	/*
 	if(ptr==NULL)
 	{
-		ptr=(struct actionNode *)malloc(sizeof(struct actionNode *));
-		ptr->action=(struct action *)malloc(sizeof(struct action *));
+		ptr=(struct actionNode *)malloc(sizeof(struct actionNode *)); // Allocate space for next node
+		ptr->action=(struct action *)malloc(sizeof(struct action *)); // Allocate space for action struct
 		ptr->next=NULL;
 		ptr->action->high=(int*)malloc(22*sizeof(int));
 		ptr->action->low=&(ptr->action->high[11]);
+		// sets the highs and low for the action
 		for(i=0;i<11;i++)
 		{
 			ptr->action->low[i]=a[i]-1;
@@ -100,23 +108,27 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
 
 		return ptr;
 	}
-	struct actionNode * ptr2;
+	*/
+	
+	//while pointer has data in it, update it
 	while(ptr!=NULL)
 	{
-		ptr2=ptr;
+		//checks if the name of the action is the same
 		if(ptr->action->name==name)
 		{
                   Serial.println(name);
-			for(i=0;i<11;i++)
-			{
-				ptr->action->low[i]=min(ptr->action->low[i],a[i]-1);
-				ptr->action->high[i]=max(ptr->action->high[i],a[i]+1);
-			}
+		  // goes through and sets the new max and min values
+		  for(i=0;i<11;i++)
+		  {
+		  	ptr->action->low[i]=min(ptr->action->low[i],a[i]-1);
+			ptr->action->high[i]=max(ptr->action->high[i],a[i]+1);
+		  }
 
-			return rtn;
+		  return rtn;
 		}
 		ptr=ptr->next;
 	}
+	// if there is no data instantiate the highs and lows  
 	ptr=(struct actionNode *)malloc(sizeof(struct actionNode *));
 	ptr->action=(struct action *)malloc(sizeof(struct action *));
 	ptr->next=NULL;
