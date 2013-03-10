@@ -3,82 +3,76 @@
 #include<string.h>
 #include"gesture.h"    // This header file is copied to,  and commented out at the bottom of this .c file
 
+struct action {
+   int * high;
+   int * low;
+   int name;
+};
 
+//LLNode for action
+struct actionNode {
+   struct action * action;
+   struct actionNode  *next;
+};
 
-int Gwrite(FILE * fg, struct gesture *object)
+struct actionNode * peter; 
+
+void Gwrite(FILE * fg)
 {
-  int i;
-	fprintf(fg,"%s ", object->name);                 //now the format is name followed by the array of ints seperated by spaces. formatting changes and additonal information to be saved is a trivial change
-	for(i = 0; i < 11; i++)
+  	int i;
+	struct actionNode * ptr=peter;
+	FILE * fg;
+	fp = fopen("C:\\Users\\Austin\\Desktop\\data.txt", "w");    
+	while(ptr!=NULL)
 	{
-		fprintf(fg, " %i", object->data[i]);
-	}
-	fprintf(fg, "%\n");
-	return 1;
-	
-}
-
-int Gnew(char*name, int data[11])            //it is currently implimented such that Gnew will always save the struct to disk by calling Gwrite, however I implimented Gwrite and Gnew sepertly in the event we do not always want to write directly to memory
-{
-	int i;
-
-struct gesture * ngest;
-
-	FILE * fp;
-	fp = fopen("C:\\Users\\Austin\\Desktop\\data.txt", "a");                // for now the file must be declared inadvance, we can change this to be an arrgument of the function Gnew and Gload if desired
-	if(fp == NULL)
-		return 0;
-
-		ngest = (struct gesture*)malloc(sizeof(struct gesture));
-
-		ngest->name = name;
+		fprintf(fg,"%s", ptr->action->name);                 //now the format is name followed by the array of ints seperated by spaces. formatting changes and additonal information to be saved is a trivial change
 		for(i = 0; i < 11; i++)
 		{
-		ngest->data[i] = data[i];
+			fprintf(fg, " %i %i", ptr->action->high[i],ptr->action->low[i]);
 		}
-
-
-	Gwrite(fp, ngest);
+		fprintf(fg, "%\n");
+	ptr=ptr->next
+	}
 	
-
-
-	return 1;
 }
 
-void Gload(void)
+void Gload()
 {
 
-	char line[80];
-	int arr[11];
+	char line[128];
 	int i;
-	int y;
-	char *name;
+	struct actionNode * ptr=peter;
+	char name[64];
 	FILE * fp;
 	fp = fopen("C:\\Users\\Austin\\Desktop\\data.txt", "r");    // for now the file must be declared inadvance, we can change this to be an arrgument of the function Gnew and Gload if desired
 	
-	while(fgets(line, 80, fp) != NULL)
+	while(fgets(line, 128, fp) != NULL)
 	{
-		
-
-		
-	 name = strtok(line, " ");
-	 arr[0] = atoi(strtok(NULL, " "));            // should turn this into a while loop but done this way for trouble shooting
-	 arr[1] = atoi(strtok(NULL, " "));            //also, must deal with special case of first number being a '0' as atoi does not save it
-	 arr[2] = atoi(strtok(NULL, " "));
-	 arr[3] = atoi(strtok(NULL, " "));
-	 arr[4] = atoi(strtok(NULL, " "));
-	 arr[5] = atoi(strtok(NULL, " "));
-	 arr[6] = atoi(strtok(NULL, " "));
-	 arr[7] = atoi(strtok(NULL, " "));
-	 arr[8] = atoi(strtok(NULL, " "));
-	 arr[9] = atoi(strtok(NULL, " "));
-	 arr[10] = atoi(strtok(NULL, " "));
-
-
-
+		if(peter==NULL)
+		{
+			peter=malloc(sizeof(struct actionNode *));
+			peter->next=NULL;
+			ptr=peter;
+		}
+		else
+		{
+			ptr->next=malloc(sizeof(struct actionNode *));
+			ptr=ptr->next
+			ptr->next=NULL;
+		}
+		ptr->action=malloc(sizeof(struct action*));
+	 	name = strtok(line, " ");
+		i=strlen(name)+1;
+		ptr->action->name=malloc(sizeof(char)*i);
+		strcpy(ptr->action->name,name,i);
+		ptr->action->high=(int*)malloc(22*sizeof(int));
+		ptr->action->low=&(ptr->action->high[11]);
+		for(i=0;i<11;i++)
+		{
+		 	ptr->action->high[i] = atoi(strtok(NULL, " "));            // should turn this into a while loop but done this way for trouble shooting
+		 	ptr->action->low[i = atoi(strtok(NULL, " "));  		//also, must deal with special case of first number being a '0' as atoi does not save it
+		}
 	}
-	Gnew(name, arr);                       //for now load only prints back to the .txt. this is for proof of concept, returning a pointer to a linked list will be trivial
-
 
 
 
