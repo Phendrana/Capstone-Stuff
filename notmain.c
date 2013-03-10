@@ -144,34 +144,26 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
 	return rtn;
 }
 
+//@inputs: array of sensor readings, current average
+//@outputs: new average
+//Is used to have a moving average, based on the current data input and previous average  
 int* recognize(int *array, int* avg) {
-//	int j,k;
-//        int hold[11]; 
-//	for (j=0;j<11;j++) {
-//		array[j] += hold[j]; 
-//	}
-//	for (k=0;k<11;k++) {
-//		avg[k] = (5*avg[k] + array[k])/6;
-//	}
-//
-//	for(k=0;k<11;k++)
-//	{
-//		if(abs(avg[k]-array[k])>3)
-//		{
-//
-//			return avg;
-//		}
-//
-//	}
-//int i;
-//for(i=0;i<11;i++)
-//{
-//Serial.print(array[i]);
-//Serial.print(", ");
-//}
-//Serial.println();
-//delay(500);
-	isAction(peter,array);
+	int j,k,l;
+
+	for (k=0;k<11;k++) {
+		avg[k] = (5*avg[k] + array[k])/6; //Puts more weighting on the previous average 
+	}
+
+	for(k=0;k<11;k++)
+	{
+		//If the difference is more than 3, break out of the method and take another input
+		if(abs(avg[k]-array[k])>3)
+		{
+			return avg;
+		}
+		
+	}
+	//isAction(peter,avg);
 	return avg;
 }
 
