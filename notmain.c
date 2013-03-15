@@ -55,6 +55,7 @@ void dimShift(struct actionNode * ptr,int weight)
 			dims[i]=i;
 		}
 		crosses=(int*)calloc(11,sizeof(int));
+
 	}
 	while(head!=NULL)
 	{
@@ -65,9 +66,9 @@ void dimShift(struct actionNode * ptr,int weight)
 		}
 		for(i=0;i<11;i++)
 		{
-			if((head->action->high[i]<ptr->action->low[i])||(head->action->low[i]>ptr->action->high[i]))
+			if((head->action->high[dims[i]]<ptr->action->low[dims[i]])||(head->action->low[dims[i]]>ptr->action->high[dims[i]]))
 			{
-				crosses[dims[i]]=crosses[dims[i]]+weight;
+				crosses[i]=crosses[i]+weight;
 			}
 		}
 		head=head->next;
@@ -125,7 +126,7 @@ int isAction(struct actionNode *ptr, int a[11])
                         {
                           Serial.println(*ptr->action->name);
                           holding=1;
-                        }
+                        
                         if(ptr2!=ptr)
                         {
                           //switch the chosen 
@@ -134,6 +135,11 @@ int isAction(struct actionNode *ptr, int a[11])
                           ptr2->action=temp;
                         }
 			return *ptr2->action->name;
+                        }
+                        else
+                        {
+                        	return NULL;
+                        }
 		}
                 ptr2=ptr;
 		ptr=ptr->next;
@@ -152,6 +158,7 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], char name)
 	struct actionNode * rtn=ptr;
 	struct actionNode * ptr2;
 	int i;
+	holding=1;
 	//while pointer has data in it, update it
 	while(ptr!=NULL)
 	{
