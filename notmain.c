@@ -19,7 +19,7 @@
 struct action {
    int * high;
    int * low;
-   int name;
+   char* name;
 };
 
 //LLNode for action
@@ -35,36 +35,37 @@ int b0=8;//mux digital pin #2
 int* p;//recognize() data
 int readings[11];//data from sensors
 int * dims;//ordered list of dimentions
-int * crosses;//ordered list of crosses in given dimention
+int * crosses;//ordered list of crosses in given dimension
+int holding;
 
 
 
 //@inputs action that was just added and weight to be given to it(mostly -1/1)
 //finds the number of crosses created by a specific action adds them to crosses
 //and sorts dims based on crosses
-void dimShift(struct actionNode * new,int weight)
+void dimShift(struct actionNode * ptr,int weight)
 {
 	struct actionNode *head=peter;
-  	int i,j,min,minat,temp;
+  	int i,j,m,minat,temp;
 	if(dims==NULL)
 	{
-		dims=malloc(sizeof(int)*11);
+		dims=(int*)malloc(sizeof(int)*11);
 		for(i=0;i<11;i++)
 		{
 			dims[i]=i;
 		}
-		crosses=calloc(11,sizeof(int));
+		crosses=(int*)calloc(11,sizeof(int));
 	}
 	while(head!=NULL)
 	{
-		if(head==new)
+		if(head==ptr)
 		{
 			head=head->next;
 			continue;
 		}
 		for(i=0;i<11;i++)
 		{
-			if((head->action->high[i]<new->action->low[i])||((head->action->low[i]>new->action->high[i]))
+			if((head->action->high[i]<ptr->action->low[i])||(head->action->low[i]>ptr->action->high[i]))
 			{
 				crosses[dims[i]]=crosses[dims[i]]+weight;
 			}
@@ -73,13 +74,13 @@ void dimShift(struct actionNode * new,int weight)
 	}
 	for(i=0;i<11;i++)
 	{
-		min=crosses[i];
+		m=crosses[i];
 		minat=i;
 		for(j=(i+1);j<11;j++)
 		{
-			if(min>crosses[j])
+			if(m>crosses[j])
 			{
-				min=crosses[j];
+				m=crosses[j];
 				minat=j;
 			}
 		}
@@ -87,7 +88,7 @@ void dimShift(struct actionNode * new,int weight)
 		dims[i]=minat;
 		dims[minat]=temp;
 		crosses[minat]=crosses[i];
-		crosses[i]=min;
+		crosses[i]=m;
 	}
 }
 
@@ -119,8 +120,12 @@ int isAction(struct actionNode *ptr, int a[11])
 		if(!outside)
 		{
                         //do action (light up light for now)
-                        digitalWrite(*ptr->action->name,HIGH);
                         //if chosen action is not already in first
+                        if(!holding)
+                        {
+                          Serial.println(*ptr->action->name);
+                          holding=1;
+                        }
                         if(ptr2!=ptr)
                         {
                           //switch the chosen 
@@ -128,7 +133,7 @@ int isAction(struct actionNode *ptr, int a[11])
                           ptr->action=ptr2->action;
                           ptr2->action=temp;
                         }
-			return ptr2->action->name;
+			return *ptr2->action->name;
 		}
                 ptr2=ptr;
 		ptr=ptr->next;
@@ -142,7 +147,7 @@ int isAction(struct actionNode *ptr, int a[11])
   adds a new action 
 */
 
-struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
+struct actionNode * addAction(struct actionNode * ptr, int a[11], char name)
 {
 	struct actionNode * rtn=ptr;
 	struct actionNode * ptr2;
@@ -151,14 +156,18 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
 	while(ptr!=NULL)
 	{
 		//checks if the name of the action is the same
-		if(ptr->action->name==name)
+		if(*ptr->action->name==name)
 		{
+  
 			dimShift(ptr,-1);
 		  // goes through and sets the new max and min values
 		  for(i=0;i<11;i++)
 		  {
-		  	ptr->action->low[i]=min(ptr->action->low[i],a[i]-1);
-			ptr->action->high[i]=max(ptr->action->high[i],a[i]+1);
+
+		  	ptr->action->low[i]=min(ptr->action->low[i],a[i]-15);
+			ptr->action->high[i]=max(ptr->action->high[i],a[i]+15);
+
+
 		  }
 			dimShift(ptr,1);
 		  return rtn;
@@ -170,14 +179,16 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], int name)
 	ptr=(struct actionNode *)malloc(sizeof(struct actionNode *));
 	ptr->action=(struct action *)malloc(sizeof(struct action *));
 	ptr->next=NULL;
-	ptr->action->high=(int*)malloc(22*sizeof(int));
-	ptr->action->low=&(ptr->action->high[11]);
+	ptr->action->high=(int*)malloc(12*sizeof(int));
+        ptr->action->high=ptr->action->high+1;
+	ptr->action->low=(int*)malloc(11*sizeof(int));
 	for(i=0;i<11;i++)
 	{
-		ptr->action->low[i]=a[i]-1;
-		ptr->action->high[i]=a[i]+1;	
+		ptr->action->low[i]=a[i]-15;
+		ptr->action->high[i]=a[i]+15;	
 	}
-	ptr->action->name=name;
+        ptr->action->name=(char*)malloc(sizeof(char));
+	*ptr->action->name=name;
 	if(rtn==NULL)
 	{
 		rtn=ptr;
@@ -199,24 +210,52 @@ int* recognize(int *array, int* avg) {
 	for (k=0;k<11;k++) {
 		avg[k] = (5*avg[k] + array[k])/6; //Puts more weighting on the previous average 
 	}
-
 	for(k=0;k<11;k++)
 	{
 		//If the difference is more than 3, break out of the method and take another input
-		if(abs(avg[k]-array[k])>3)
+		if(abs(avg[k]-array[k])>8)
 		{
 			digitalWrite(10,LOW);
   			digitalWrite(11,LOW);
   			digitalWrite(12,LOW);
+                        holding=0;
 			return avg;
 		}
-		
+
 	}
-	isAction(peter,avg);
+int i;
+	isAction(peter,array);
 	return avg;
 }
 
 
+void removeAction(char name) {
+	struct actionNode * point = peter;
+	struct actionNode * point2;
+        if(*point->action->name==name)
+        {
+           peter=point->next;
+            free(point->action->high-1);
+            free(point->action->low);
+           free(point->action);
+          free(point);
+       return; 
+        }
+	while(point->next != NULL) {
+		if (*point->next->action->name == name)
+		{
+			point2 = point;
+			point->next = point2->next->next;
+			free(point2->action->high);
+			free(point2->action);
+			free(point2);
+			return;
+		}
+		point = point->next;
+	}
+
+
+}
 
 
 void setup() {
@@ -231,32 +270,52 @@ void setup() {
   digitalWrite(10,LOW);
   digitalWrite(12,LOW);
   pinMode(b1, 'output');
+  holding=0;
   pinMode(b0, 'output');
-  digitalWrite(b1, LOW);
-  int a[]={680, 680, 680, 680, 800, 680, 680, 680, 680,800,680};
-  peter=addAction(peter, a,10);
-  int b[]={760, 760, 760, 760, 850, 760, 760, 760, 760,850,760};
-  peter=addAction(peter, b,10);
-
 }
 
 
 void loop() {
-  
+    
+  digitalWrite(b1, LOW);
   digitalWrite(b0, LOW);
   readings[0]=analogRead(1);
   readings[1]=analogRead(2);
   readings[2]=analogRead(3);
   readings[3]=analogRead(4);
-  readings[4]=analogRead(5);
-    
+  
   digitalWrite(b0, HIGH);
-  readings[5]=analogRead(1);
-  readings[6]=analogRead(2);
-  readings[7]=analogRead(3);
-  readings[8]=analogRead(4);
-  readings[9]=analogRead(5);
+  readings[4]=analogRead(1);
+  readings[5]=analogRead(2);
+  readings[6]=analogRead(3);
+  readings[7]=analogRead(4);
+  
+  digitalWrite(b1, HIGH);
+  digitalWrite(b0, LOW);
+  readings[8]=analogRead(1);
+  readings[9]=analogRead(2);
+  readings[10]=analogRead(3);
+  
+
+  
+  if(Serial.available()) {
     
-  readings[10]=analogRead(0);
+    char ch = Serial.read();
+    
+    if (ch >='a') {
+      peter=addAction(peter, readings, ch);
+      int i;
+      for(i=0;i<11;i++)
+      {
+        Serial.println(peter->action->high[i]);
+      }
+    }
+    else {
+      ch = ch + 32;
+      removeAction(ch);
+    }
+    
+  }
+  
   p=recognize(readings, p);
 }
