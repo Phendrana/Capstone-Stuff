@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>   
 
  
-SoftwareSerial blueToothSerial(RxD,TxD);
+SoftwareSerial blueToothSerial(6,7);
  
 void setup() 
 { 
