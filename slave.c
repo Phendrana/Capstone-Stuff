@@ -33,7 +33,7 @@ void setupBlueToothConnection()
   blueToothSerial.print("\r\n+STWMOD=0\r\n"); 
   blueToothSerial.print("\r\n+STNA=SeeedBTSlave\r\n"); 
   blueToothSerial.print("\r\n+STOAUT=1\r\n"); 
-  blueToothSerial.print("\r\n+STAUTO=0\r\n"); e
+  blueToothSerial.print("\r\n+STAUTO=0\r\n");
   delay(2000); 
   blueToothSerial.print("\r\n+INQ=1\r\n");  
   Serial.println("inquirable");
