@@ -38,6 +38,53 @@ int * dims;//ordered list of dimentions
 int * crosses;//ordered list of crosses in given dimension
 int holding;
 
+int[] config()
+{
+	int i;
+	char h;
+	int aLow[11];
+	int aHigh[11];
+	int low[22];
+	int * high = low[11]
+	//on first button push
+		low=recognize();
+	//on second button push
+		high=recognize();
+	//while readin !=null
+		//read name from file->h
+		//read low from file ->aLow
+		//read high from file->aHigh
+		for(i=0;i<11;i++)
+		{
+			aLow=(aLow*(high[i]-low[i]))/1000+low[i];
+			aHigh=(aLow*(high[i]-low[i]))/1000+low[i];
+		}
+		peter=addAction(peter,high,low,h);
+	return low
+}
+
+void saveData(int[] high/low)
+{
+	struct actionNode * ptr = peter;
+	while(ptr!=NULL)
+	{
+		//write ptr->action->name to file
+		//write ((actionLow-low)*1000)/dif
+		//write ((actionHigh-low)*1000)/dif
+		ptr=ptr->next;
+	}
+	//say that your done
+}
+
+void clean()
+{
+	struct actionNode * ptr = peter;
+	while(peter!=NULL)
+	{
+		peter=peter->next;
+		removeAction(ptr->action->name;)
+	}
+}
 
 
 //@inputs action that was just added and weight to be given to it(mostly -1/1)
@@ -208,6 +255,60 @@ struct actionNode * addAction(struct actionNode * ptr, int a[11], char name)
 	return rtn;
 }
 
+struct actionNode * addAction(struct actionNode * ptr, int high[11], int low[11], char name)
+{
+	struct actionNode * rtn=ptr;
+	struct actionNode * ptr2;
+	int i;
+	holding=1;
+	//while pointer has data in it, update it
+	while(ptr!=NULL)
+	{
+		//checks if the name of the action is the same
+		if(*ptr->action->name==name)
+		{
+  
+			dimShift(ptr,-1);
+		  // goes through and sets the new max and min values
+		  for(i=0;i<11;i++)
+		  {
+
+		  	ptr->action->low[i]=min(ptr->action->low[i],a[i]-15);
+			ptr->action->high[i]=max(ptr->action->high[i],a[i]+15);
+
+
+		  }
+			dimShift(ptr,1);
+		  return rtn;
+		}
+		ptr2=ptr;
+		ptr=ptr->next;
+	}
+	// if there is no data instantiate the highs and lows  
+	ptr=(struct actionNode *)malloc(sizeof(struct actionNode *));
+	ptr->action=(struct action *)malloc(sizeof(struct action *));
+	ptr->next=NULL;
+	ptr->action->high=(int*)malloc(12*sizeof(int));
+        ptr->action->high=ptr->action->high+1;
+	ptr->action->low=(int*)malloc(11*sizeof(int));
+	for(i=0;i<11;i++)
+	{
+		ptr->action->low[i]=a[i]-15;
+		ptr->action->high[i]=a[i]+15;	
+	}
+        ptr->action->name=(char*)malloc(sizeof(char));
+	*ptr->action->name=name;
+	if(rtn==NULL)
+	{
+		rtn=ptr;
+	}
+	else
+	{
+		ptr2->next=ptr;	
+	}
+	dimShift(ptr,1);
+	return rtn;
+}
 //@inputs: array of sensor readings, current average
 //@outputs: new average
 //Is used to have a moving average, based on the current data input and previous average  
@@ -264,6 +365,28 @@ void removeAction(char name) {
 
 }
 
+int[] getReadings()
+{
+  digitalWrite(b1, LOW);
+  digitalWrite(b0, LOW);
+  readings[0]=analogRead(1);
+  readings[1]=analogRead(2);
+  readings[2]=analogRead(3);
+  readings[3]=analogRead(4);
+  
+  digitalWrite(b0, HIGH);
+  readings[4]=analogRead(1);
+  readings[5]=analogRead(2);
+  readings[6]=analogRead(3);
+  readings[7]=analogRead(4);
+  
+  digitalWrite(b1, HIGH);
+  digitalWrite(b0, LOW);
+  readings[8]=analogRead(1);
+  readings[9]=analogRead(2);
+  readings[10]=analogRead(3);
+  return readings;
+}
 
 void setup() {
   p=(int*)malloc(11*sizeof(int));
@@ -283,26 +406,8 @@ void setup() {
 
 
 void loop() {
-    
-  digitalWrite(b1, LOW);
-  digitalWrite(b0, LOW);
-  readings[0]=analogRead(1);
-  readings[1]=analogRead(2);
-  readings[2]=analogRead(3);
-  readings[3]=analogRead(4);
   
-  digitalWrite(b0, HIGH);
-  readings[4]=analogRead(1);
-  readings[5]=analogRead(2);
-  readings[6]=analogRead(3);
-  readings[7]=analogRead(4);
-  
-  digitalWrite(b1, HIGH);
-  digitalWrite(b0, LOW);
-  readings[8]=analogRead(1);
-  readings[9]=analogRead(2);
-  readings[10]=analogRead(3);
-  
+  readings=getReadings()
 
   
   if(Serial.available()) {
