@@ -1,9 +1,7 @@
-
 #include <SoftwarwSerial.h>   
 #define RxD 6
 #define TxD 7
  
-#define DEBUG_ENABLED  1
 
 String retSymb = "+RTINQ="; 
 String slaveName = ";SeeedBTSlave";
@@ -53,7 +51,7 @@ void setupBlueToothConnection()
   delay(2000); 
   blueToothSerial.flush();
   blueToothSerial.print("\r\n+INQ=1\r\n");
-  Serial.println("Master is inquiring!");
+  Serial.println("inquiring");
   delay(2000); 
   
   char recvChar;
