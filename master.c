@@ -1,6 +1,5 @@
 #include <SoftwarwSerial.h>   
-#define RxD 6
-#define TxD 7
+
  
 
 String retSymb = "+RTINQ="; 
@@ -13,13 +12,13 @@ String slaveAddr;
 
 String connectCmd = "\r\n+CONN=";
 
-SoftwareSerial blueToothSerial(RxD,TxD);
+SoftwareSerial blueToothSerial(6,7);
  
 void setup() 
 { 
   Serial.begin(9600);
-  pinMode(RxD, INPUT);
-  pinMode(TxD, OUTPUT);
+  pinMode(6, INPUT);
+  pinMode(7, OUTPUT);
   setupBlueToothConnection();
   
   delay(1000);
