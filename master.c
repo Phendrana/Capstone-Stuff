@@ -13,7 +13,7 @@ String slaveAddr;
 
 String connectCmd = "\r\n+CONN=";
 
-NewSoftSerial blueToothSerial(RxD,TxD);
+SoftwareSerial blueToothSerial(RxD,TxD);
  
 void setup() 
 { 
